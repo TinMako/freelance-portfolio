@@ -1,0 +1,8 @@
+metric,value
+total_quotes,100
+unique_authors,50
+unique_tags,137
+text_length_mean,120.3
+text_length_median,84.0
+text_length_max,1082
+text_length_min,32

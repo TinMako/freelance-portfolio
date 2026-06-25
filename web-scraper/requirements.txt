@@ -1,0 +1,6 @@
+# web-scraper ポートフォリオ 依存パッケージ
+# 検証済みバージョン（>= で下限を固定、互換のため上限は緩めに）
+requests>=2.31,<3
+beautifulsoup4>=4.12,<5
+pandas>=2.1,<4
+matplotlib>=3.8,<4
