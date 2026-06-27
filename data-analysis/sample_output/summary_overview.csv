@@ -1,0 +1,10 @@
+metric,value
+total_orders,800
+total_revenue,27069991
+mean_order_value,33837.5
+median_order_value,19231.0
+total_units,4322
+mean_discount_pct,5.06
+revenue_std,42058.4
+revenue_max,379925
+revenue_min,739

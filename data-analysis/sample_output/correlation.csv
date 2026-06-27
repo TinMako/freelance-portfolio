@@ -1,0 +1,5 @@
+,quantity,unit_price,discount_pct,revenue
+quantity,1.0,0.014,-0.012,0.424
+unit_price,0.014,1.0,-0.011,0.808
+discount_pct,-0.012,-0.011,1.0,-0.065
+revenue,0.424,0.808,-0.065,1.0
