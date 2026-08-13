@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+
+# Output (regenerate with run_all.py — sample_output は commit 済みサンプル)
+# sample_output/ は意図的にコミット対象（デモ出力を見せるため）
