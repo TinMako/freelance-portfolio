@@ -38,7 +38,51 @@ jobs:
         run: python -m compileall -q .
       - name: Run API-free mock demo
         if: matrix.project == 'ai-agent'
-        run: python run_demo.py --mock
+        shell: bash
+        run: |
+          set -euo pipefail
+          output_file="$(mktemp)"
+          trap 'rm -f "$output_file"' EXIT
+          if ! python run_demo.py --mock >"$output_file" 2>&1; then
+            cat "$output_file"
+            exit 1
+          fi
+          cat "$output_file"
+          python - "$output_file" <<'PY'
+          import re
+          import sys
+          from pathlib import Path
+
+          output = Path(sys.argv[1]).read_text(encoding="utf-8")
+          pattern = re.compile(
+              r"={60}\r?\n入力: ([^\r\n]+)\r?\n={60}\r?\n(.*?)(?=\r?\n={60}\r?\n|\Z)",
+              re.DOTALL,
+          )
+          matches = list(pattern.finditer(output))
+          cases = {match.group(1): match.group(2) for match in matches}
+          expected = {
+              "分析ケース（売上データ）": ("analysis", "[分析エージェント]"),
+              "要約ケース（ニュース記事）": ("summary", "[要約エージェント]"),
+              "不明ケース（分類外）": ("unknown", "専門エージェントが割り当てられませんでした（unknown ルート）"),
+              "入力ゲートブロック（空文字）": (None, "[GATE BLOCKED] 入力テキストが空です"),
+          }
+          if "[モックモード] API キーなしで動作します" not in output:
+              raise SystemExit("mock mode banner is missing")
+          if len(matches) != len(expected) or set(cases) != set(expected):
+              raise SystemExit(f"mock demo cases mismatch: {[match.group(1) for match in matches]}")
+          if "(fallback)" in output:
+              raise SystemExit("mock demo unexpectedly used a fallback")
+          for label, (route, marker) in expected.items():
+              block = cases[label]
+              if marker not in block:
+                  raise SystemExit(f"expected result missing for: {label}")
+              route_match = re.search(r"(?m)^ルーティング先: (analysis|summary|unknown)\s*$", block)
+              if route is None:
+                  if route_match or "[GATE BLOCKED]" not in block:
+                      raise SystemExit("empty-input gate did not block the input")
+              elif route_match is None or route_match.group(1) != route:
+                  raise SystemExit(f"unexpected route for {label}")
+          PY
       - name: Run synthetic data pipeline
         if: matrix.project == 'data-analysis'
         run: python run_all.py
